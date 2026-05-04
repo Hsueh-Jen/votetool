@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RealTime Vote - 即時投票系統</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&family=Noto+Sans+TC:wght@400;900&display=swap"
+    rel="stylesheet">
+  <!-- PeerJS for P2P Realtime -->
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  <!-- QRCode.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+
+<body>
+  <div id="app" class="container">
+
+    <!-- Role Selection (Initial State if no param) -->
+    <div id="setup-view" class="glass-card fade-in"
+      style="display: none; margin: auto; max-width: 400px; text-align: center;">
+      <h2 style="margin-bottom: 2rem;">選擇進入身分</h2>
+      <div style="display: grid; gap: 1rem;">
+        <button class="btn-primary" onclick="openRole('admin')">主控台 (Admin)</button>
+        <button class="btn-primary" onclick="openRole('result')" style="background: var(--accent-1)">結果頁
+          (Result)</button>
+        <button class="btn-primary" onclick="openRole('vote')" style="background: var(--accent-2)">投票頁 (Voter)</button>
+      </div>
+    </div>
+
+    <!-- Interface A: Results View -->
+    <div id="result-view" class="fade-in">
+      <div id="result-status-container" style="height: 40px; margin-bottom: 2rem;">
+        <div class="status-badge" id="result-status">等待主控台連線...</div>
+      </div>
+
+      <div id="result-content" class="view-transition">
+        <h1 class="poll-title" id="display-question">等待題目中...</h1>
+        <div class="chart-container" id="bar-chart">
+          <!-- Bars injected here -->
+        </div>
+      </div>
+
+      <div style="margin-top: 4rem;">
+        <p style="color: var(--text-dim)">掃描 QR Code 參與投票</p>
+        <div id="qrcode-audience"
+          style="display: flex; justify-content: center; margin-top: 1rem; background: white; padding: 10px; width: fit-content; margin-left: auto; margin-right: auto;">
+        </div>
+      </div>
+    </div>
+
+    <!-- Interface B: Admin View -->
+    <div id="admin-view" class="fade-in">
+      <div class="admin-header">
+        <h1>主控面版</h1>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn-primary" style="padding: 0.4rem 1rem; font-size: 0.8rem; background: var(--accent-1);"
+            onclick="openRole('result', state.peerId)">開啟投影頁</button>
+          <button class="btn-primary" style="padding: 0.4rem 1rem; font-size: 0.8rem; background: #fff; color: #000;"
+            onclick="copyResultLink()">複製投影頁連結</button>
+          <button class="btn-primary" style="padding: 0.4rem 1rem; font-size: 0.8rem; background: var(--accent-3);"
+            onclick="resetSystem()">重設全系統</button>
+          <div class="status-badge status-online" id="admin-id-badge">ID: Loading...</div>
+        </div>
+      </div>
+
+      <div class="glass-card">
+        <h2 style="margin-bottom: 1.5rem;">切換題目</h2>
+        <div class="question-list" id="admin-questions">
+          <!-- Question items injected here -->
+        </div>
+      </div>
+
+      <div class="qr-section glass-card" style="margin-top: 2rem;">
+        <h3>投影 QR Code</h3>
+        <p style="color: var(--text-dim); margin-bottom: 1rem;">觀眾可掃描此碼進入投票頁面</p>
+        <div id="qrcode"></div>
+        <p id="share-url" style="word-break: break-all; opacity: 0.5; font-size: 0.8rem; margin-bottom: 0.5rem;"></p>
+        <button class="btn-primary" style="padding: 0.4rem 1rem; font-size: 0.8rem;"
+          onclick="copyVoterLink()">複製投票連結</button>
+      </div>
+    </div>
+
+    <!-- Interface C: Vote View -->
+    <div id="vote-view" class="fade-in">
+      <div id="vote-status-container" style="height: 60px;">
+        <div class="status-badge" id="vote-status">正在連線...</div>
+      </div>
+      <div id="voter-active-ui" class="view-transition" style="display: none;">
+        <h2 id="vote-question" style="font-size: 2rem; margin-bottom: 2rem; text-align: center;">題目載入中...</h2>
+        <div class="vote-options" id="vote-options">
+          <!-- Options injected here -->
+        </div>
+      </div>
+      <div id="voter-wait-ui" style="text-align: center; margin-top: 5rem;">
+        <h2 style="color: var(--text-dim)">請等待主控台切換題目</h2>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
