@@ -51,6 +51,9 @@ button {
   transition: all 0.1s;
   box-shadow: var(--block-shadow);
   font-size: 1.1rem;
+  color: var(--text-main);
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .btn-primary {
