@@ -77,7 +77,21 @@ function startAdmin() {
     console.error('Peer error:', err);
     if (err.type === 'unavailable-id') {
       showToast('ID 已被佔用，房間正在重試連線...');
+      setTimeout(() => {
+        if (!state.peer.destroyed) state.peer.reconnect();
+      }, 3000);
+    } else if (err.type === 'network' || err.type === 'server-error') {
+      setTimeout(() => {
+        if (!state.peer.destroyed) state.peer.reconnect();
+      }, 3000);
     }
+  });
+
+  state.peer.on('disconnected', () => {
+    console.warn('Peer disconnected from signaling server. Reconnecting...');
+    setTimeout(() => {
+      if (!state.peer.destroyed) state.peer.reconnect();
+    }, 1000);
   });
 
   state.peer.on('connection', (conn) => {
@@ -462,8 +476,20 @@ function connectToHost(onData) {
 
   state.peer.on('error', (err) => {
     console.error('Client peer error:', err);
-    // If peer itself errors, try to recreate it after a delay
-    setTimeout(() => connectToHost(onData), 3000);
+    if (err.type === 'network' || err.type === 'server-error' || err.type === 'peer-unavailable') {
+      setTimeout(() => {
+        if (!state.peer.destroyed) state.peer.reconnect();
+      }, 3000);
+    } else {
+      setTimeout(() => connectToHost(onData), 3000);
+    }
+  });
+
+  state.peer.on('disconnected', () => {
+    console.warn('Client peer disconnected. Reconnecting...');
+    setTimeout(() => {
+      if (!state.peer.destroyed) state.peer.reconnect();
+    }, 1000);
   });
 }
 
